@@ -1,7 +1,25 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
 
-User = get_user_model()
+
+class User(AbstractUser):
+
+    class Role(models.TextChoices):
+        USER = 'user', _('User')
+        MODERATOR = 'moderator', _('Moderator')
+        ADMIN = 'admin', _('Admin')
+
+    email = models.EmailField(_('email address'), blank=False, unique=True)
+    bio = models.TextField(blank=True)
+    role = models.CharField(
+        max_length=20,
+        choices=Role.choices,
+        default=Role.USER,
+        )
+
+    def __str__(self):
+        return self.username
 
 
 class Title(models.Model):
@@ -27,6 +45,7 @@ class Review(models.Model):
         auto_now_add=True,
         db_index=True
     )
+
 # первый вариант реализации score
 # SCORE_CHOICES = zip(range(1, 11), range(1, 11))
 # score = models.IntegerField(choices=SCORE_CHOICES)
