@@ -17,6 +17,8 @@ from .serializers import (CategoriesSerializer, CommentSerializer,
                           GenresSerializer, ReviewSerializer, TitlesSerializer,
                           UserSerializer)
 
+User = get_user_model()
+
 
 class GenresViewSet(viewsets.ModelViewSet):
     queryset = Genres.objects.all()
@@ -37,9 +39,6 @@ class TitlesViewSet(viewsets.ModelViewSet):
     serializer_class = TitlesSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitlesFilter
-
-
-User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -93,7 +92,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        serializer.save(author=self.request.user, title_id=self.request.id)
 
     def get_queryset(self):
         title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
