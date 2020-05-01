@@ -2,20 +2,47 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
+from rest_framework import filters, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 
-from api.models import Review, Title
-from api.permissions import IsAdmin, IsModerator, IsUser
-from api.serializers import CommentSerializer, ReviewSerializer, UserSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+
+from .filters import TitlesFilter
+from .models import Categories, Genres, Review, Titles
+from .permissions import IsAdmin, IsModerator, IsUser
+from .serializers import (CategoriesSerializer, CommentSerializer,
+                          GenresSerializer, ReviewSerializer, TitlesSerializer,
+                          UserSerializer)
+
+
+class GenresViewSet(viewsets.ModelViewSet):
+    queryset = Genres.objects.all()
+    serializer_class = GenresSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=name', ]
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=name', ]
+
+
+class TitlesViewSet(viewsets.ModelViewSet):
+    queryset = Titles.objects.all()
+    serializer_class = TitlesSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TitlesFilter
+
 
 User = get_user_model()
 
 
-class UserViewSet(ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = [IsAdminUser | IsAdmin]
     serializer_class = UserSerializer
@@ -60,7 +87,7 @@ class Auth():
         return Response(content)
 
 
-class ReviewViewSet(ModelViewSet):
+class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [AllowAny, ]
     pagination_class = PageNumberPagination
@@ -73,7 +100,7 @@ class ReviewViewSet(ModelViewSet):
         return title.reviews
 
 
-class CommentViewSet(ModelViewSet):
+class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, ]
     pagination_class = PageNumberPagination
@@ -82,6 +109,6 @@ class CommentViewSet(ModelViewSet):
         serializer.save(author=self.request.user)
 
     def get_queryset(self):
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'), title=title)
         return review.comments

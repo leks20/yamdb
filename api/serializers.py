@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from api.models import Comment, Review
+from .models import Categories, Genres, Titles, Comment, Review
 
 User = get_user_model()
 
@@ -9,8 +9,45 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('first_name', 'last_name', 'username', 'bio', 'role', 'email', )
+        fields = ('first_name', 'last_name', 'username', 'bio', 'role', 'email',)
         model = User
+
+
+class GenresSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('name', 'slug',)
+        model = Genres
+
+
+class CategoriesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('name', 'slug',)
+        model = Categories
+
+
+class CustomField(serializers.SlugRelatedField):
+
+    def to_representation(self, obj):
+        return {'name': obj.name, 'slug': obj.slug}
+
+
+class TitlesSerializer(serializers.ModelSerializer):
+    genre = CustomField(
+        slug_field='slug',
+        many=True,
+        queryset=Genres.objects.all()
+    )
+
+    category = CustomField(
+        slug_field='slug',
+        queryset=Categories.objects.all()
+    )
+
+    class Meta:
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
+        model = Titles
 
 
 class ReviewSerializer(serializers.ModelSerializer):

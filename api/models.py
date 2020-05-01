@@ -1,6 +1,43 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+User = get_user_model()
+
+
+class Categories(models.Model):
+    name = models.CharField(max_length=10)
+    slug = models.SlugField(
+        max_length=10,
+        unique=True
+    )
+
+
+class Genres(models.Model):
+    name = models.CharField(max_length=10)
+    slug = models.SlugField(
+        max_length=10,
+        unique=True
+    )
+
+
+class Titles(models.Model):
+    name = models.CharField(max_length=90)
+    year = models.IntegerField()
+    description = models.TextField(
+        max_length=200,
+        blank=True
+    )
+    genre = models.ManyToManyField(
+        Genres,
+        related_name='genre'
+    )
+    category = models.ForeignKey(
+        Categories,
+        on_delete=models.PROTECT,
+        related_name='categories'
+    )
 
 
 class User(AbstractUser):
@@ -22,12 +59,7 @@ class User(AbstractUser):
         return self.username
 
 
-class Titles(models.Model):
-    pass
-
-
 class Review(models.Model):
-
     title = models.ForeignKey(
         Titles,
         on_delete=models.CASCADE,

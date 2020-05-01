@@ -23,8 +23,8 @@ from api.views import Auth
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
     path('redoc/', TemplateView.as_view(template_name='redoc.html'), name='redoc'),
-    path('api/v1/', include('api.urls')),
     path('auth/email/', Auth.send_confirmation_code),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
