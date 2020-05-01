@@ -15,6 +15,26 @@ from api.serializers import CommentSerializer, ReviewSerializer, UserSerializer
 User = get_user_model()
 
 
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    permission_classes = [IsAdminUser | IsAdmin]
+    serializer_class = UserSerializer
+    pagination_class = PageNumberPagination
+    lookup_field = 'username'
+
+    @action(methods=['patch', 'get'], detail=False,
+            permission_classes=[IsAuthenticated],
+            url_path='me', url_name='me')
+    def me(self, request, *args, **kwargs):
+        instance = self.request.user
+        serializer = self.get_serializer(instance)
+        if self.request.method == 'PATCH':
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer.is_valid()
+            serializer.save()
+        return Response(serializer.data)
+
+
 class Auth():
 
     def email_is_valid(email):
@@ -40,30 +60,9 @@ class Auth():
         return Response(content)
 
 
-class UserViewSet(ModelViewSet):
-    queryset = User.objects.all()
-    permission_classes = [IsAdminUser | IsAdmin]
-    print(queryset)
-    serializer_class = UserSerializer
-    pagination_class = PageNumberPagination
-    lookup_field = 'username'
-
-    @action(methods=['patch', 'get'], detail=False,
-            permission_classes=[IsAuthenticated],
-            url_path='me', url_name='me')
-    def me(self, request, *args, **kwargs):
-        instance = self.request.user
-        serializer = self.get_serializer(instance)
-        if self.request.method == 'PATCH':
-            serializer = self.get_serializer(instance, data=request.data, partial=True)
-            serializer.is_valid()
-            serializer.save()
-        return Response(serializer.data)
-
-
 class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [AllowAny, ]
     pagination_class = PageNumberPagination
 
     def perform_create(self, serializer):
