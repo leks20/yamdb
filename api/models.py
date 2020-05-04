@@ -57,6 +57,7 @@ class User(AbstractUser):
 
 
 class Review(models.Model):
+    SCORE_CHOICES = zip(range(1, 11), range(1, 11))
     title = models.ForeignKey(
         Titles,
         on_delete=models.CASCADE,
@@ -68,7 +69,7 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews'
     )
-    score = models.IntegerField(),
+    score = models.IntegerField(choices=SCORE_CHOICES, default=1)
     pub_date = models.DateTimeField(
         'Дата публикации отзыва',
         auto_now_add=True,

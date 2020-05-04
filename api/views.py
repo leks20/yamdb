@@ -12,7 +12,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .filters import TitlesFilter
 from .models import Categories, Genres, Review, Titles
-from .permissions import IsAdmin, IsModerator, IsUser
+from .permissions import IsAdmin, IsModerator, IsUser, IsOwner
 from .serializers import (CategoriesSerializer, CommentSerializer,
                           GenresSerializer, ReviewSerializer, TitlesSerializer,
                           UserSerializer)
@@ -88,26 +88,49 @@ class Auth():
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [AllowAny, ]
     pagination_class = PageNumberPagination
+    permission_classes = [IsOwner]
+    permission_classes_by_action = {'list': [AllowAny],
+                                    'create': [IsUser | IsAdmin | IsModerator],
+                                    'retrieve': [AllowAny],
+                                    'partial_update': [IsOwner],
+                                    'destroy': [IsOwner]}
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user, title_id=self.request.id)
+        title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
 
     def get_queryset(self):
         title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
         return title.reviews
 
+    def get_permissions(self):
+        try:
+            return [permission() for permission in self.permission_classes_by_action[self.action]]
+        except KeyError:
+            return [permission() for permission in self.permission_classes]
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated, ]
     pagination_class = PageNumberPagination
+    permission_classes = [IsOwner]
+    permission_classes_by_action = {'list': [AllowAny],
+                                    'create': [IsUser | IsAdmin | IsModerator],
+                                    'retrieve': [AllowAny],
+                                    'partial_update': [IsOwner],
+                                    'destroy': [IsOwner]}
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)
 
     def get_queryset(self):
-        title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'), title=title)
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
         return review.comments
+
+    def get_permissions(self):
+        try:
+            return [permission() for permission in self.permission_classes_by_action[self.action]]
+        except KeyError:
+            return [permission() for permission in self.permission_classes]

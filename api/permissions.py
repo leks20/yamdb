@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 User = get_user_model()
 
@@ -32,3 +32,12 @@ class IsUser(BasePermission):
             if request.user.role in self.allowed_user_roles:
                 return True
         return False
+
+
+class IsOwner(BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        if obj.author == request.user:
+            return True
+        else:
+            return request.user.is_staff
