@@ -8,7 +8,11 @@ from .views import (CategoryViewSet, CommentViewSet, GenresViewSet,
 
 v1_router = DefaultRouter()
 v1_router.register('genres', GenresViewSet, basename='genres')
-v1_router.register('categories', CategoryViewSet, basename='categories')
+v1_router.register(
+    'categories',
+    CategoryViewSet,
+    basename='categories'
+)
 v1_router.register('titles', TitlesViewSet, basename='titles')
 v1_router.register(r'users', UserViewSet)
 v1_router.register(
@@ -23,7 +27,7 @@ v1_router.register(
 )
 
 urlpatterns = [
-    path('v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('v1/', include(v1_router.urls))
 ]

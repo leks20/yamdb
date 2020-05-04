@@ -76,10 +76,6 @@ class Review(models.Model):
         db_index=True
     )
 
-# первый вариант реализации score
-# SCORE_CHOICES = zip(range(1, 11), range(1, 11))
-# score = models.IntegerField(choices=SCORE_CHOICES)
-
 # второй вариант реализации score
 # from django.core.validators import MinValueValidator, MaxValueValidator
 # score = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])

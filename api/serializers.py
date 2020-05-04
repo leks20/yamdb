@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Avg
 from rest_framework import serializers
 
 from .models import Categories, Genres, Titles, Comment, Review
@@ -17,6 +18,7 @@ class GenresSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('name', 'slug',)
+        lookup_field = 'slug'
         model = Genres
 
 
@@ -24,6 +26,7 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('name', 'slug',)
+        lookup_field = 'slug'
         model = Categories
 
 
@@ -57,17 +60,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
 
-    # def validate_title(self, value):
-    #     user = self.context['request'].user
-    #     if Review.objects.filter(author=user, title=value).exists():
-    #         raise serializers.ValidationError("Вы уже оставили отзыв на данное произведение")
-    #     return value
-
     def validate(self, data):
-        user = self.context['request'].user
-        title_id = self.context['request'].path.split('/')[4]
-        if Review.objects.filter(author=user, title__id=title_id).exists():
-            raise serializers.ValidationError("Вы уже оставили отзыв на данное произведение")
+        if self.context['request'].method == 'POST':
+            user = self.context['request'].user
+            title_id = self.context['request'].path.split('/')[4]
+            if Review.objects.filter(author=user, title__id=title_id).exists():
+                raise serializers.ValidationError("Вы уже оставили отзыв на данное произведение")
         return data
 
 
