@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -58,7 +57,6 @@ class User(AbstractUser):
 
 
 class Review(models.Model):
-
     title = models.ForeignKey(
         Titles,
         on_delete=models.CASCADE,
