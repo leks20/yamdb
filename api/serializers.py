@@ -19,6 +19,7 @@ class GenresSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('name', 'slug',)
+        lookup_field = 'slug'
         model = Genres
 
 
@@ -26,6 +27,7 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('name', 'slug',)
+        lookup_field = 'slug'
         model = Categories
 
 

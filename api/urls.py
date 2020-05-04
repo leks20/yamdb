@@ -11,7 +11,11 @@ from .views import CommentViewSet, ReviewViewSet, UserViewSet
 
 v1_router = DefaultRouter()
 v1_router.register('genres', GenresViewSet, basename='genres')
-v1_router.register('categories', CategoryViewSet, basename='categories')
+v1_router.register(
+    'categories',
+    CategoryViewSet,
+    basename='categories'
+)
 v1_router.register('titles', TitlesViewSet, basename='titles')
 
 v1_router.register(r'users', UserViewSet)

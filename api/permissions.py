@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from rest_framework import permissions
 from rest_framework.permissions import BasePermission
 
 User = get_user_model()
@@ -32,3 +33,13 @@ class IsUser(BasePermission):
             if request.user.role in self.allowed_user_roles:
                 return True
         return False
+
+
+# Мои правки, класс для сэйф методов без auth
+
+class IsAdminUserOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
+            return request.user.is_staff

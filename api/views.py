@@ -1,5 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, mixins
 
 from .filters import TitlesFilter
 from .models import Categories, Genres, Titles
@@ -16,18 +16,28 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Review
-from .permissions import IsAdmin, IsModerator, IsUser
+from .permissions import IsAdmin, IsModerator, IsUser, IsAdminUserOrReadOnly
 from .serializers import CommentSerializer, ReviewSerializer, UserSerializer
 
 
-class GenresViewSet(viewsets.ModelViewSet):
+class GenresViewSet(mixins.CreateModelMixin,
+                    mixins.DestroyModelMixin,
+                    mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
+    permission_classes = [IsAdminUserOrReadOnly]
+    lookup_field = 'slug'
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['=name', ]
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(mixins.CreateModelMixin,
+                      mixins.DestroyModelMixin,
+                      mixins.ListModelMixin,
+                      viewsets.GenericViewSet):
+    permission_classes = [IsAdminUserOrReadOnly, ]
+    lookup_field = 'slug'
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     filter_backends = [filters.SearchFilter]
@@ -35,6 +45,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdminUserOrReadOnly]
     queryset = Titles.objects.all()
     serializer_class = TitlesSerializer
     filter_backends = [DjangoFilterBackend]

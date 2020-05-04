@@ -4,9 +4,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-User = get_user_model()
-
-
 class Categories(models.Model):
     name = models.CharField(max_length=10)
     slug = models.SlugField(
