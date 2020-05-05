@@ -17,11 +17,8 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
 
-from api.views import Auth
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('auth/email/', Auth.send_confirmation_code),
     path('redoc/', TemplateView.as_view(template_name='redoc.html'), name='redoc'),
 ]

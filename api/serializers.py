@@ -1,16 +1,38 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Categories, Genres, Titles, Comment, Review
+from .models import Categories, Comment, Genres, Review, Titles
 
 User = get_user_model()
+
+
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+
+class EmailAuthSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    confirmation_code = serializers.CharField(max_length=100)
+
+    def validate(self, data):
+        user = get_object_or_404(
+            User, confirmation_code=data['confirmation_code'],
+            email=data['email']
+        )
+        return get_tokens_for_user(user)
 
 
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('first_name', 'last_name', 'username', 'bio', 'role', 'email',)
+        fields = ('first_name', 'last_name', 'username', 'bio', 'role', 'email', )
         model = User
 
 
