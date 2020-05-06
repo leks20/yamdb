@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -72,8 +73,7 @@ class TitlesSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField('get_rating')
 
     def get_rating(self, title):
-        rating = Review.objects.filter(title=title.id).\
-            aggregate(average_score=Avg('score'))
+        rating = Review.objects.filter(title=title.id).aggregate(average_score=Avg('score'))
 
         return rating['average_score'] or None
 
