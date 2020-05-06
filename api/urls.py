@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 
-from .views import (CategoryViewSet, CommentViewSet, GenresViewSet,
+from .serializers import EmailAuthSerializer
+from .views import (Auth, CategoryViewSet, CommentViewSet, GenresViewSet,
                     ReviewViewSet, TitlesViewSet, UserViewSet)
 
 v1_router = DefaultRouter()
@@ -27,7 +28,8 @@ v1_router.register(
 )
 
 urlpatterns = [
-    path('v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('v1/auth/email/', Auth.send_confirmation_code),
+    path('v1/auth/token/', TokenObtainPairView.as_view(serializer_class = EmailAuthSerializer), name='token_obtain_pair'),
     path('v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('v1/', include(v1_router.urls))
 ]
