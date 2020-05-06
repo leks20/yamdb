@@ -24,7 +24,7 @@ class GenresViewSet(mixins.CreateModelMixin,
                     mixins.DestroyModelMixin,
                     mixins.ListModelMixin,
                     viewsets.GenericViewSet):
-    permission_classes = [IsAdminUserOrReadOnly]
+    permission_classes = [IsAdminUserOrReadOnly, ]
     lookup_field = 'slug'
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
