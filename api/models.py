@@ -4,17 +4,17 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Categories(models.Model):
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=30)
     slug = models.SlugField(
-        max_length=10,
+        max_length=30,
         unique=True
     )
 
 
 class Genres(models.Model):
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=30)
     slug = models.SlugField(
-        max_length=10,
+        max_length=30,
         unique=True
     )
 
