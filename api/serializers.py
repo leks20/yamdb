@@ -84,7 +84,8 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    author = serializers.SlugRelatedField(slug_field='username',
+                                          read_only=True)
 
     class Meta:
         fields = ('id', 'text', 'author', 'score', 'pub_date',)
@@ -94,13 +95,16 @@ class ReviewSerializer(serializers.ModelSerializer):
         if self.context['request'].method == 'POST':
             user = self.context['request'].user
             title_id = self.context['request'].path.split('/')[4]
+            print(title_id)
             if Review.objects.filter(author=user, title__id=title_id).exists():
-                raise serializers.ValidationError("Вы уже оставили отзыв на данное произведение")
+                raise serializers.ValidationError(
+                      "Вы уже оставили отзыв на данное произведение")
         return data
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    author = serializers.SlugRelatedField(slug_field='username',
+                                          read_only=True)
 
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date',)

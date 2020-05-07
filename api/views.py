@@ -134,7 +134,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         try:
-            return [permission() for permission in self.permission_classes_by_action[self.action]]
+            return [permission() for permission
+                    in self.permission_classes_by_action[self.action]]
         except KeyError:
             return [permission() for permission in self.permission_classes]
 
@@ -149,15 +150,20 @@ class CommentViewSet(viewsets.ModelViewSet):
                                     'destroy': [IsModerator | IsAdmin]}
 
     def perform_create(self, serializer):
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        title_id = self.kwargs.get('title_id')
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, pk=review_id, title__id=title_id)
         serializer.save(author=self.request.user, review=review)
 
     def get_queryset(self):
-        queryset = Comment.objects.filter(review__id=self.kwargs.get('review_id'))
+        queryset = Comment.objects.filter(
+            review__id=self.kwargs.get('review_id')
+        )
         return queryset
 
     def get_permissions(self):
         try:
-            return [permission() for permission in self.permission_classes_by_action[self.action]]
+            return [permission() for permission
+                    in self.permission_classes_by_action[self.action]]
         except KeyError:
             return [permission() for permission in self.permission_classes]
