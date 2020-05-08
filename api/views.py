@@ -1,9 +1,6 @@
 from django.db.models import Avg
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.core import mail
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, viewsets
@@ -13,12 +10,14 @@ from rest_framework.response import Response
 
 from .filters import TitleFilter
 from .models import Category, Comment, Genre, Review, Title
-from .permissions import (IsAdmin, IsAdminUserOrReadOnly, IsModerator, IsOwner,
-                          IsUser)
+from .permissions import (
+    IsAdmin, IsAdminUserOrReadOnly, IsModerator, IsOwner, IsUser)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer, TitleReadSerializer,
                           TitleWriteSerializer, UserSerializer
                           )
+from .utils import email_is_valid, generate_mail
+
 
 User = get_user_model()
 
@@ -88,37 +87,17 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class Auth:
 
-    def email_is_valid(email):
-        try:
-            validate_email(email)
-            return True
-        except ValidationError:
-            return False
-
-    def generate_mail(to_email, code):
-        subject = 'Confirmation code для YaMDB'
-        from_email = 'noreply@yamdb.app'
-        to = to_email
-        text_content = f'''Вы запросили confirmation code для работы с API YaMDB.\n
-                           Внимание, храните его в тайне {code}'''
-        mail.send_mail(
-            subject, text_content,
-            from_email, [to],
-            fail_silently=False
-        )
-
     @api_view(['POST'])
     @permission_classes([AllowAny])
     def send_confirmation_code(request):
         email = request.data.get('email')
-        print(email)
         if email is None:
             message = 'Email is required'
         else:
-            if Auth.email_is_valid(email):
+            if email_is_valid(email):
                 user = get_object_or_404(User, email=email)
                 confirmation_code = default_token_generator.make_token(user)
-                Auth.generate_mail(email, confirmation_code)
+                generate_mail(email, confirmation_code)
                 user.confirmation_code = confirmation_code
                 message = email
                 user.save()
