@@ -1,31 +1,27 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.core import mail
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, viewsets
+from rest_framework import filters, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import TitleFilter
-from .mixins import ReviewCommentPermissionMixin
+from .mixins import CdlViewSet, ReviewCommentMixin
 from .models import Category, Comment, Genre, Review, Title
-from .permissions import (IsAdmin, IsAdminUserOrReadOnly, IsModerator, IsOwner,
-                          IsUser)
+from .permissions import IsAdmin, IsAdminUserOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer,
+                          GenreSerializer, ReviewSerializer,
+                          TitleReadSerializer, TitleWriteSerializer,
                           UserSerializer)
+from .utils import email_is_valid, generate_mail
 
 User = get_user_model()
 
 
-class GenreViewSet(mixins.CreateModelMixin,
-                   mixins.DestroyModelMixin,
-                   mixins.ListModelMixin,
-                   viewsets.GenericViewSet):
+class GenreViewSet(CdlViewSet):
     permission_classes = [IsAdminUserOrReadOnly, ]
     lookup_field = 'slug'
     queryset = Genre.objects.all()
@@ -34,10 +30,7 @@ class GenreViewSet(mixins.CreateModelMixin,
     search_fields = ['=name', ]
 
 
-class CategoryViewSet(mixins.CreateModelMixin,
-                      mixins.DestroyModelMixin,
-                      mixins.ListModelMixin,
-                      viewsets.GenericViewSet):
+class CategoryViewSet(CdlViewSet):
     permission_classes = [IsAdminUserOrReadOnly, ]
     lookup_field = 'slug'
     queryset = Category.objects.all()
@@ -47,11 +40,16 @@ class CategoryViewSet(mixins.CreateModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminUserOrReadOnly]
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
+    permission_classes = [IsAdminUserOrReadOnly, ]
+    queryset = Title.objects.all().annotate(Avg('reviews__score'))
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return TitleReadSerializer
+
+        return TitleWriteSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -69,7 +67,8 @@ class UserViewSet(viewsets.ModelViewSet):
         instance = self.request.user
         serializer = self.get_serializer(instance)
         if self.request.method == 'PATCH':
-            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer = self.get_serializer(
+                instance, data=request.data, partial=True)
             serializer.is_valid()
             serializer.save()
         return Response(serializer.data)
@@ -77,37 +76,17 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class Auth:
 
-    def email_is_valid(email):
-        try:
-            validate_email(email)
-            return True
-        except ValidationError:
-            return False
-
-    def generate_mail(to_email, code):
-        subject = 'Confirmation code для YaMDB'
-        from_email = 'noreply@yamdb.app'
-        to = to_email
-        text_content = f'''Вы запросили confirmation code для работы с API YaMDB.\n
-                           Внимание, храните его в тайне {code}'''
-        mail.send_mail(
-            subject, text_content,
-            from_email, [to],
-            fail_silently=False
-        )
-
     @api_view(['POST'])
     @permission_classes([AllowAny])
     def send_confirmation_code(request):
         email = request.data.get('email')
-        print(email)
         if email is None:
             message = 'Email is required'
         else:
-            if Auth.email_is_valid(email):
+            if email_is_valid(email):
                 user = get_object_or_404(User, email=email)
                 confirmation_code = default_token_generator.make_token(user)
-                Auth.generate_mail(email, confirmation_code)
+                generate_mail(email, confirmation_code)
                 user.confirmation_code = confirmation_code
                 message = email
                 user.save()
@@ -116,8 +95,7 @@ class Auth:
         return Response({'email': message})
 
 
-class ReviewViewSet(ReviewCommentPermissionMixin,
-                    viewsets.ModelViewSet):
+class ReviewViewSet(ReviewCommentMixin):
     serializer_class = ReviewSerializer
 
     def perform_create(self, serializer):
@@ -126,11 +104,11 @@ class ReviewViewSet(ReviewCommentPermissionMixin,
 
     def get_queryset(self):
         queryset = Review.objects.filter(title__id=self.kwargs.get('title_id'))
+
         return queryset
 
 
-class CommentViewSet(ReviewCommentPermissionMixin,
-                     viewsets.ModelViewSet):
+class CommentViewSet(ReviewCommentMixin):
     serializer_class = CommentSerializer
 
     def perform_create(self, serializer):

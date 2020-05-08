@@ -27,9 +27,15 @@ v1_router.register(
     basename='comments'
 )
 
+auth_patterns = [
+    path('email/', Auth.send_confirmation_code),
+    path('token/',
+         TokenObtainPairView.as_view(serializer_class=EmailAuthSerializer),
+         name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+]
+
 urlpatterns = [
-    path('v1/auth/email/', Auth.send_confirmation_code),
-    path('v1/auth/token/', TokenObtainPairView.as_view(serializer_class=EmailAuthSerializer), name='token_obtain_pair'),
-    path('v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('v1/auth/', include(auth_patterns)),
     path('v1/', include(v1_router.urls))
 ]
