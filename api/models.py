@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class Categories(models.Model):
+class Category(models.Model):
     name = models.CharField(max_length=30)
     slug = models.SlugField(
         max_length=30,
@@ -11,7 +11,7 @@ class Categories(models.Model):
     )
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     name = models.CharField(max_length=30)
     slug = models.SlugField(
         max_length=30,
@@ -19,7 +19,7 @@ class Genres(models.Model):
     )
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(max_length=90)
     year = models.IntegerField()
     description = models.TextField(
@@ -27,11 +27,11 @@ class Titles(models.Model):
         blank=True
     )
     genre = models.ManyToManyField(
-        Genres,
+        Genre,
         related_name='genre'
     )
     category = models.ForeignKey(
-        Categories,
+        Category,
         on_delete=models.PROTECT,
         related_name='categories'
     )
@@ -60,7 +60,7 @@ class User(AbstractUser):
 class Review(models.Model):
     SCORE_CHOICES = zip(range(1, 11), range(1, 11))
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         related_name='reviews'
     )
@@ -74,12 +74,7 @@ class Review(models.Model):
     pub_date = models.DateTimeField(
         'Дата публикации отзыва',
         auto_now_add=True,
-        db_index=True
     )
-
-# второй вариант реализации score
-# from django.core.validators import MinValueValidator, MaxValueValidator
-# score = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
 
 
 class Comment(models.Model):
@@ -96,6 +91,5 @@ class Comment(models.Model):
     )
     pub_date = models.DateTimeField(
         'Дата публикации комментария',
-        auto_now_add=True,
-        db_index=True
+        auto_now_add=True
     )

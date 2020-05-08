@@ -1,3 +1,4 @@
+from django.db.models import Avg
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core import mail
@@ -10,47 +11,58 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from .filters import TitlesFilter
-from .models import Categories, Comment, Genres, Review, Titles
-from .permissions import (
-    IsAdmin, IsAdminUserOrReadOnly, IsModerator, IsOwner, IsUser)
-from .serializers import (
-    CategoriesSerializer, CommentSerializer, GenresSerializer,
-    ReviewSerializer, TitlesSerializer, UserSerializer)
+from .filters import TitleFilter
+from .models import Category, Comment, Genre, Review, Title
+from .permissions import (IsAdmin, IsAdminUserOrReadOnly, IsModerator, IsOwner,
+                          IsUser)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer, TitleReadSerializer,
+                          TitleWriteSerializer, UserSerializer
+                          )
 
 User = get_user_model()
 
 
-class GenresViewSet(mixins.CreateModelMixin,
-                    mixins.DestroyModelMixin,
-                    mixins.ListModelMixin,
-                    viewsets.GenericViewSet):
+class CdlViewSet(mixins.CreateModelMixin,
+                 mixins.DestroyModelMixin,
+                 mixins.ListModelMixin,
+                 viewsets.GenericViewSet):
+    """
+    A viewset that provides default `create()`, `destroy()`
+    and `list()` actions.
+    """
+    pass
+
+
+class GenreViewSet(CdlViewSet):
     permission_classes = [IsAdminUserOrReadOnly, ]
     lookup_field = 'slug'
-    queryset = Genres.objects.all()
-    serializer_class = GenresSerializer
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['=name', ]
 
 
-class CategoryViewSet(mixins.CreateModelMixin,
-                      mixins.DestroyModelMixin,
-                      mixins.ListModelMixin,
-                      viewsets.GenericViewSet):
+class CategoryViewSet(CdlViewSet):
     permission_classes = [IsAdminUserOrReadOnly, ]
     lookup_field = 'slug'
-    queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['=name', ]
 
 
-class TitlesViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminUserOrReadOnly]
-    queryset = Titles.objects.all()
-    serializer_class = TitlesSerializer
+class TitleViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdminUserOrReadOnly, ]
+    queryset = Title.objects.all().annotate(Avg('reviews__score'))
     filter_backends = [DjangoFilterBackend]
-    filterset_class = TitlesFilter
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return TitleReadSerializer
+
+        return TitleWriteSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -125,11 +137,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
                                     'destroy': [IsAdmin | IsModerator]}
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
 
     def get_queryset(self):
         queryset = Review.objects.filter(title__id=self.kwargs.get('title_id'))
+
         return queryset
 
     def get_permissions(self):
