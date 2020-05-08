@@ -11,6 +11,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import TitleFilter
+from .mixins import ReviewCommentPermissionMixin
 from .models import Category, Comment, Genre, Review, Title
 from .permissions import (IsAdmin, IsAdminUserOrReadOnly, IsModerator, IsOwner,
                           IsUser)
@@ -115,14 +116,9 @@ class Auth:
         return Response({'email': message})
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
+class ReviewViewSet(ReviewCommentPermissionMixin,
+                    viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsOwner]
-    permission_classes_by_action = {'list': [AllowAny],
-                                    'create': [IsUser | IsAdmin | IsModerator],
-                                    'retrieve': [AllowAny],
-                                    'partial_update': [IsOwner],
-                                    'destroy': [IsAdmin | IsModerator]}
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -132,22 +128,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
         queryset = Review.objects.filter(title__id=self.kwargs.get('title_id'))
         return queryset
 
-    def get_permissions(self):
-        try:
-            return [permission() for permission
-                    in self.permission_classes_by_action[self.action]]
-        except KeyError:
-            return [permission() for permission in self.permission_classes]
 
-
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(ReviewCommentPermissionMixin,
+                     viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsOwner]
-    permission_classes_by_action = {'list': [AllowAny],
-                                    'create': [IsUser | IsAdmin | IsModerator],
-                                    'retrieve': [AllowAny],
-                                    'partial_update': [IsOwner],
-                                    'destroy': [IsModerator | IsAdmin]}
 
     def perform_create(self, serializer):
         title_id = self.kwargs.get('title_id')
@@ -160,10 +144,3 @@ class CommentViewSet(viewsets.ModelViewSet):
             review__id=self.kwargs.get('review_id')
         )
         return queryset
-
-    def get_permissions(self):
-        try:
-            return [permission() for permission
-                    in self.permission_classes_by_action[self.action]]
-        except KeyError:
-            return [permission() for permission in self.permission_classes]
