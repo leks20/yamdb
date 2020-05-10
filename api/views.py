@@ -85,25 +85,23 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class Auth:
-
-    @api_view(['POST'])
-    @permission_classes([AllowAny])
-    def send_confirmation_code(request):
-        email = request.data.get('email')
-        if email is None:
-            message = 'Email is required'
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def send_confirmation_code(request):
+    email = request.data.get('email')
+    if email is None:
+        message = 'Email is required'
+    else:
+        if email_is_valid(email):
+            user = get_object_or_404(User, email=email)
+            confirmation_code = default_token_generator.make_token(user)
+            generate_mail(email, confirmation_code)
+            user.confirmation_code = confirmation_code
+            message = email
+            user.save()
         else:
-            if email_is_valid(email):
-                user = get_object_or_404(User, email=email)
-                confirmation_code = default_token_generator.make_token(user)
-                generate_mail(email, confirmation_code)
-                user.confirmation_code = confirmation_code
-                message = email
-                user.save()
-            else:
-                message = 'Valid email is required'
-        return Response({'email': message})
+            message = 'Valid email is required'
+    return Response({'email': message})
 
 
 class ReviewViewSet(ReviewCommentMixin):
