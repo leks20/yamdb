@@ -9,7 +9,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import TitleFilter
-from .mixins import CdlViewSet, ReviewCommentMixin
+from .mixins import ReviewCommentMixin
 from .models import Category, Comment, Genre, Review, Title
 from .permissions import IsAdmin, IsAdminUserOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -32,7 +32,7 @@ class CDLViewSet(mixins.CreateModelMixin,
     pass
 
 
-class GenreViewSet(CdlViewSet):
+class GenreViewSet(CDLViewSet):
     permission_classes = [IsAdminUserOrReadOnly, ]
     lookup_field = 'slug'
     queryset = Genre.objects.all()
@@ -41,7 +41,7 @@ class GenreViewSet(CdlViewSet):
     search_fields = ['=name', ]
 
 
-class CategoryViewSet(CdlViewSet):
+class CategoryViewSet(CDLViewSet):
     permission_classes = [IsAdminUserOrReadOnly, ]
     lookup_field = 'slug'
     queryset = Category.objects.all()
@@ -57,7 +57,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.action in ['list', 'retrieve']:
+        if self.action in ('list', 'retrieve'):
             return TitleReadSerializer
 
         return TitleWriteSerializer

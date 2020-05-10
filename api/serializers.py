@@ -1,4 +1,3 @@
-from funcguard import guard
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -88,9 +87,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
 
-    @guard
-    def validate(self, data, _when: self.context['request'].method == 'POST'):
+    def validate(self, data):
         super().validate(data)
+
+        if self.context['request'].method != 'POST':
+            return data
+
         user = self.context['request'].user
         title_id = (
             self.context['request'].parser_context['kwargs']['title_id']
