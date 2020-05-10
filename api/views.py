@@ -3,7 +3,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets
+from rest_framework import filters, mixins, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -19,6 +19,17 @@ from .serializers import (CategorySerializer, CommentSerializer,
 from .utils import email_is_valid, generate_mail
 
 User = get_user_model()
+
+
+class CDLViewSet(mixins.CreateModelMixin,
+                 mixins.DestroyModelMixin,
+                 mixins.ListModelMixin,
+                 viewsets.GenericViewSet):
+    """
+    A viewset that provides default `create()`, `destroy()`
+    and `list()` actions.
+    """
+    pass
 
 
 class GenreViewSet(CdlViewSet):

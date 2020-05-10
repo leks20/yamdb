@@ -1,3 +1,4 @@
+from funcguard import guard
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -87,16 +88,16 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
 
-    def validate(self, data):
-
-        if self.context['request'].method == 'POST':
-            user = self.context['request'].user
-            title_id = (
-                self.context['request'].parser_context['kwargs']['title_id']
-            )
-            if Review.objects.filter(author=user, title__id=title_id).exists():
-                raise serializers.ValidationError(
-                      "Вы уже оставили отзыв на данное произведение")
+    @guard
+    def validate(self, data, _when: self.context['request'].method == 'POST'):
+        super().validate(data)
+        user = self.context['request'].user
+        title_id = (
+            self.context['request'].parser_context['kwargs']['title_id']
+        )
+        if Review.objects.filter(author=user, title__id=title_id).exists():
+            raise serializers.ValidationError(
+                    "Вы уже оставили отзыв на данное произведение")
         return data
 
 
