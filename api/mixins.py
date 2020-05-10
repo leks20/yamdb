@@ -18,14 +18,3 @@ class ReviewCommentMixin(viewsets.ModelViewSet):
                     in self.permission_classes_by_action[self.action]]
         except KeyError:
             return [permission() for permission in self.permission_classes]
-
-
-class CdlViewSet(mixins.CreateModelMixin,
-                 mixins.DestroyModelMixin,
-                 mixins.ListModelMixin,
-                 viewsets.GenericViewSet):
-    """
-    A viewset that provides default `create()`, `destroy()`
-    and `list()` actions.
-    """
-    pass
