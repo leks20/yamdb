@@ -2,7 +2,7 @@ from django.core import mail
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
-NOREPLY_YAMDB_EMAIL = 'noreply@yamdb.app'
+from api_yamdb.settings import NOREPLY_YAMDB_EMAIL
 
 
 def email_is_valid(email):
