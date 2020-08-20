@@ -43,14 +43,14 @@ git clone https://github.com/leks20/yamdb
 ```
 docker-compose up --build
 ```
-4) В новом окне терминала узнайте id контейнера yamdb_web и войдите в контейнер
+4) В новом окне терминала узнайте id контейнера yamdb_web и войдите в контейнер:
 ```
 docker container ls
 ```
 ```
 docker exec -it <CONTAINER_ID> bash
 ```
-5) В контейнере выполните миграции, создайте суперпользователя и заполните базу начальными данными
+5) В контейнере выполните миграции, создайте суперпользователя и заполните базу начальными данными:
 ```
 python manage.py migrate
 
@@ -61,7 +61,7 @@ python manage.py loaddata fixtures.json
 _________________________________
 Ваш проект запустился на http://0.0.0.0:8000/
 
-Полная документация проекта - ([redoc.yaml](https://github.com/leks20/yamdb/blob/master/static/redoc.yaml))
+Полная документация проекта - [redoc.yaml](https://github.com/leks20/yamdb/blob/master/static/redoc.yaml)
 
 Вы можете запустить тесты и проверить работу модулей:
 ```
