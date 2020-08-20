@@ -19,11 +19,11 @@ Cоздан в команде из трёх человек с использов
 - проект написан на Python с использованием Django REST Framework
 - библиотека Simple JWT - работа с JWT-токеном
 - библиотека django-filter - фильтрация запросов
-- базы данны - SQLite3 и Postgres
+- базы данны - SQLite3 и PostgreSQL
 - автоматическое развертывание проекта - Docker, docker-compose
 - система управления версиями - git
 
-## Как запустить проект, используя Docker (база данных Postgres):
+## Как запустить проект, используя Docker (база данных PostgreSQL):
 1) Клонируйте репозитроий с проектом:
 ```
 git clone https://github.com/leks20/yamdb
