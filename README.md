@@ -19,6 +19,7 @@ Cоздан в команде из трёх человек с использов
 - проект написан на Python с использованием Django REST Framework
 - библиотека Simple JWT - работа с JWT-токеном
 - библиотека django-filter - фильтрация запросов
+- WSGI-сервер Gunicorn
 - базы данны - SQLite3 и Postgres
 - автоматическое развертывание проекта - Docker, docker-compose
 - система управления версиями - git
