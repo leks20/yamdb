@@ -106,18 +106,10 @@ __________________________________
 - Ресурс COMMENTS: комментарии к отзывам. Комментарий привязан к определённому отзыву.
 
 
-
-
-
-
-
-
-## Как работает API_Yatube
-
-##### Пример http-запроса (POST) для создания поста:
+## Пример http-запроса (POST) для создания нового комментария для отзыва:
 ```
-url = 'http://127.0.0.1/api/v1/posts/'
-data = {'text': 'Your post'}
+url = 'http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/'
+data = {'text': 'Your comment'}
 headers = {'Authorization': 'Bearer your_token'}
 request = requests.post(url, data=data, headers=headers)
 ```
@@ -126,27 +118,9 @@ request = requests.post(url, data=data, headers=headers)
 Статус- код 200
 
 {
-  "id": 0,
-  "text": "string",
-  "author": "string",
-  "pub_date": "2020-08-20T14:15:22Z"
+ "id": 0,
+ "text": "string",
+ "author": "string",
+ "pub_date": "2020-08-20T14:15:22Z"
 }
-```
-_____________________________________________
-##### Пример http-запроса (GET) для получения списка подписчиков:
-```
-url = 'http://127.0.0.1:8000/api/v1/follow/'
-headers = {'Authorization': 'Bearer your_token'}
-request = requests.get(api, headers=headers)
-```
-##### Ответ API_Yatube:
-```
-Статус- код 200
-
-[
-  {
-    "user": "string",
-    "following": "string"
-  }
-]
 ```
