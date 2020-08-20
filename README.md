@@ -106,14 +106,14 @@ __________________________________
 - Ресурс COMMENTS: комментарии к отзывам. Комментарий привязан к определённому отзыву.
 
 
-## Пример http-запроса (POST) для создания нового комментария для отзыва:
+### Пример http-запроса (POST) для создания нового комментария к отзыву:
 ```
 url = 'http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/'
 data = {'text': 'Your comment'}
 headers = {'Authorization': 'Bearer your_token'}
 request = requests.post(url, data=data, headers=headers)
 ```
-##### Ответ API_Yatube:
+### Ответ API_YamDB:
 ```
 Статус- код 200
 
