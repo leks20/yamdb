@@ -19,10 +19,11 @@ Cоздан в команде из трёх человек с использов
 - проект написан на Python с использованием Django REST Framework
 - библиотека Simple JWT - работа с JWT-токеном
 - библиотека django-filter - фильтрация запросов
+- базы данны - SQLite3 и Postgres
+- автоматическое развертывание проекта - Docker, docker-compose
 - система управления версиями - git
 
-## Как запустить проект, используя Docker:
-
+## Как запустить проект, используя Docker (база данных Postgres):
 1) Клонируйте репозитроий с проектом:
 ```
 git clone https://github.com/leks20/yamdb
@@ -38,17 +39,36 @@ git clone https://github.com/leks20/yamdb
  - POSTGRES_USER=postgres
  - POSTGRES_PASSWORD=postgres
  - POSTGRES_DB=postgres
-3) Вы можете запустить тесты и проверить работу модулей:
-```
-docker exec -ti <container_id> pytest
-```
-4) С помощью Dockerfile и docker-compose.yaml разверните проект:
+3) С помощью Dockerfile и docker-compose.yaml разверните проект:
 ```
 docker-compose up --build
 ```
-5)
+4) В новом окне терминала узнайте id контейнера yamdb_web и войдите в контейнер
+```
+docker container ls
+```
+```
+docker exec -it <CONTAINER_ID> bash
+```
+5) В контейнере выполните миграции, создайте суперпользователя и заполните базу начальными данными
+```
+python manage.py migrate
 
-## Как запустить проект без использования Docker:
+python manage.py createsuperuser
+
+python manage.py loaddata fixtures.json
+```
+_________________________________
+Ваш проект запустился на http://0.0.0.0:8000/
+
+Полная документация проекта - ([redoc.yaml](https://github.com/leks20/yamdb/blob/master/static/redoc.yaml))
+
+Вы можете запустить тесты и проверить работу модулей:
+```
+docker exec -ti <container_id> pytest
+```
+
+## Как запустить проект без использования Docker (база данных SQLite3):
 
 1) Клонируйте репозитроий с проектом:
 ```
