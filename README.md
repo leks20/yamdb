@@ -64,22 +64,20 @@ pip install -r requirements.txt
 ```
 3) Создайте в директории файл .env и поместите туда SECRET_KEY, необходимый для запуска проекта
    - сгенерировать ключ можно на сайте [Djecrety](https://djecrety.ir/)
-   
-4) Вы можете загрузить тестовые данные:
-```
-python manage.py loaddata fixtures.json
-```
-  либо выполнить команды из п.п. 4-6
 
 4) Выполните миграции:
 ```
 python manage.py migrate
 ```
-5) Создайте суперпользователя:
+5) Вы можете загрузить тестовые данные:
+```
+python manage.py loaddata fixtures.json
+```
+либо создайть суперпользователя:
 ```
 python manage.py createsuperuser
 ```
-6) Запустите сервер:
+7) Запустите сервер:
 ```
 python manage.py runserver
 ```
