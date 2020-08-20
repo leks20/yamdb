@@ -61,7 +61,7 @@ python manage.py loaddata fixtures.json
 _________________________________
 Ваш проект запустился на http://0.0.0.0:8000/
 
-Полная документация проекта - [redoc.yaml](https://github.com/leks20/yamdb/blob/master/static/redoc.yaml)
+Полная документация ([redoc.yaml](https://github.com/leks20/yamdb/blob/master/static/redoc.yaml)) доступна по адресу http://0.0.0.0:8000/redoc/
 
 Вы можете запустить тесты и проверить работу модулей:
 ```
