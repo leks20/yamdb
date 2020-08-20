@@ -28,7 +28,7 @@ Cоздан в команде из трёх человек с использов
 git clone https://github.com/leks20/yamdb
 ```
 2) В директории проекта создайте файл .env, в котором пропишите следующие переменные окружения (для тестирования можете использовать указанные значения переменных):
- - SECRET_KEY='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
+ - SECRET_KEY='z!+4n+s%r=&z+r6v0-!_$@uger)@%$fm@)4w*x12ecw0z+%!@8'
  - DB_ENGINE=django.db.backends.postgresql
  - DB_NAME=postgres
  - DB_USER=postgres
@@ -64,7 +64,11 @@ pip install -r requirements.txt
 ```
 3) Создайте в директории файл .env и поместите туда SECRET_KEY, необходимый для запуска проекта
    - сгенерировать ключ можно на сайте [Djecrety](https://djecrety.ir/)
-
+4) Вы можете загрузить тестовые данные с помощью команды
+```
+python manage.py loaddata fixtures.json
+```
+либо выполнить команды из п. 4-6
 4) Выполните миграции:
 ```
 python manage.py migrate
