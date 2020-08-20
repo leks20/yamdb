@@ -63,7 +63,7 @@ python3 -m venv venv
 pip install -r requirements.txt
 ```
 3) Создайте в директории файл .env и поместите туда SECRET_KEY, необходимый для запуска проекта
-- сгенерировать ключ можно на сайте [Djecrety](https://djecrety.ir/)
+   - сгенерировать ключ можно на сайте [Djecrety](https://djecrety.ir/)
 
 4) Выполните миграции:
 ```
