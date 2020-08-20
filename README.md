@@ -69,15 +69,15 @@ pip install -r requirements.txt
 ```
 python manage.py migrate
 ```
-5) Загрузите тестовые данные:
-```
-python manage.py loaddata fixtures.json
-```
-либо создайте суперпользователя:
+5) Cоздайте суперпользователя:
 ```
 python manage.py createsuperuser
 ```
-6) Запустите сервер:
+6) Загрузите тестовые данные:
+```
+python manage.py loaddata fixtures.json
+```
+7) Запустите сервер:
 ```
 python manage.py runserver
 ```
